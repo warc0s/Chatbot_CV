@@ -11,22 +11,13 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, render_template
 from transformers import BertForSequenceClassification, BertTokenizer
-from llama_index.core import (
-    SimpleDirectoryReader, 
-    VectorStoreIndex, 
-    Settings, 
-    ChatPromptTemplate,
-    StorageContext,
-    load_index_from_storage
-)
-from llama_index.core.node_parser import SentenceSplitter
-from llama_index.embeddings.deepinfra import DeepInfraEmbeddingModel
-from llama_index.llms.deepinfra import DeepInfraLLM
-from llama_index.postprocessor.flag_embedding_reranker import FlagEmbeddingReranker
-from llama_index.llms.gemini import Gemini
+import litellm
+
+# -------------------------- Configuración de logging --------------------------
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # -------------------------- Integración del BERT para clasificación del prompt --------------------------
-
 def clean_text(text):
     text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8', 'ignore')
     text = re.sub(r'[^\w\s]', '', text)
@@ -47,8 +38,6 @@ def clasificar_dificultad(texto):
     logits = outputs.logits
     prediccion = torch.argmax(logits, dim=1).item()
     return prediccion
-
-# ---------------------------------------------------------------------------------------------------
 
 # ------------- Sistema de memoria para conversaciones -------------
 conversation_history = {}  # {session_id: [lista de mensajes]}
@@ -73,8 +62,7 @@ def clean_inactive_sessions():
             del processing_queries[session_id]
     
     if inactive_sessions:
-        #logger.info(f"Eliminadas {len(inactive_sessions)} sesiones inactivas")
-        pass
+        logger.info(f"Eliminadas {len(inactive_sessions)} sesiones inactivas")
 
 def get_conversation_history(session_id):
     """Obtiene o crea un historial de conversación para el ID de sesión dado"""
@@ -83,7 +71,7 @@ def get_conversation_history(session_id):
     
     if session_id not in conversation_history:
         conversation_history[session_id] = []
-        #logger.info(f"Creada nueva sesión con ID: {session_id}")
+        logger.info(f"Creada nueva sesión con ID: {session_id}")
     
     # Actualizar timestamp de última actividad
     last_activity[session_id] = datetime.now()
@@ -100,194 +88,199 @@ def add_to_history(session_id, role, content):
         })
         # Actualizar timestamp de última actividad
         last_activity[session_id] = datetime.now()
-        #logger.info(f"Añadido mensaje de {role} a sesión {session_id}")
+        logger.debug(f"Añadido mensaje de {role} a sesión {session_id}")
     
 def format_conversation_history(history, max_messages=5):
     """Formatea el historial de conversación para incluirlo en el prompt"""
     if not history:
-        return ""
+        return []
         
     # Limitar a los últimos N mensajes para no sobrecargar el contexto
     recent_history = history[-max_messages:] if len(history) > max_messages else history
-    formatted_history = ""
+    formatted_history = []
     
     for message in recent_history:
-        role = "Usuario" if message['role'] == 'user' else "Asistente"
-        formatted_history += f"{role}: {message['content']}\n\n"
+        formatted_history.append({
+            "role": "user" if message['role'] == 'user' else "assistant",
+            "content": message['content']
+        })
     
     return formatted_history
 
-def modify_query_with_history(history, query_str):
-    """Modifica la consulta para incluir el historial de conversación relevante"""
-    if not history:
-        return query_str
-    
-    # Formatear el historial de conversación
-    formatted_history = format_conversation_history(history)
-    
-    # Construir la consulta mejorada que incluye el historial
-    enhanced_query = (
-        f"HISTORIAL DE CONVERSACIÓN RELEVANTE:\n"
-        f"{formatted_history}\n"
-        f"CONSULTA ACTUAL: {query_str}\n\n"
-        f"Responde a la CONSULTA ACTUAL teniendo en cuenta el HISTORIAL DE CONVERSACIÓN RELEVANTE. "
-        f"Si la consulta hace referencia a elementos mencionados anteriormente en la conversación, "
-        f"asegúrate de contextualizar tu respuesta correctamente."
-    )
-    
-    return enhanced_query
-# -------------------------------------------------------------------
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+# -------------------------- Configuración de la aplicación --------------------------
 app = Flask(__name__)
 
 load_dotenv()
-DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY")
-if not DEEPINFRA_API_KEY:
-    logger.error("DEEPINFRA_API_KEY not configured in environment variables.")
-    sys.exit("Server configuration incomplete. Contact administrator.")
-
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GOOGLE_API_KEY:
-    logger.error("GOOGLE_API_KEY not configured in environment variables.")
-    sys.exit("Server configuration incomplete. Contact administrator.")
+    logger.error("GOOGLE_API_KEY no configurada en variables de entorno.")
+    sys.exit("Configuración del servidor incompleta. Contacte al administrador.")
 
-# Configuración del modelo de embeddings
-Settings.embed_model = DeepInfraEmbeddingModel(
-    model_id="BAAI/bge-m3",
-    api_token=DEEPINFRA_API_KEY,
-    normalize=True,
-    text_prefix="text: ",
-    query_prefix="query: ",
-)
+# Configurar LiteLLM para Google AI Studio
+litellm.set_verbose = True
 
-# Directorio para almacenar datos de índice
-INDEX_STORAGE_PATH = os.path.join(os.getcwd(), "index_storage")
+# System prompt para información del CV - placeholder para contenido real del CV
+system_prompt = """
+Eres un asistente de IA especializado en representar y discutir la información sobre el CV (Curriculum Vitae) de Marcos.
+Tu propósito es proporcionar respuestas precisas, útiles y detalladas sobre el historial profesional de esta persona.
 
-# Mejorado: chunking más inteligente con solapamiento
-node_parser = SentenceSplitter(
-    chunk_size=512,
-    chunk_overlap=100,  # Overlap del 20%
-    paragraph_separator="\n\n",
-    secondary_chunking_regex="(?<=\. )"  # Divide por oraciones como respaldo
-)
+INSTRUCCIONES:
+1. Responde preguntas sobre el contenido del CV de manera profesional y amigable.
+2. Si la pregunta es sobre detalles específicos del CV, proporciona una respuesta completa.
+3. Si la pregunta es sobre consejos profesionales generales relacionados con los campos del CV, brinda orientación útil.
+4. Mantén siempre un tono profesional.
 
-# Configuramos LLMs
-Settings.llm = DeepInfraLLM(
-    model="meta-llama/Llama-3.3-70B-Instruct-Turbo",
-    api_key=DEEPINFRA_API_KEY,
-    temperature=0.3
-)
+CONTENIDO DEL CV:
+# Marcos García Estévez
 
-llm_gemini = Gemini(
-    model="models/gemini-2.0-flash",
-    api_key=GOOGLE_API_KEY,
-    temperature=0.3
-)
+## Información de Contacto:
+**LinkedIn**: https://www.linkedin.com/in/marcosgarest  
+**Web Personal**: https://warcos.dev
 
-# Verificación de documentos
-execution_dir = os.getcwd()
-md_filename = "info_midas.md"
-md_path = os.path.join(execution_dir, md_filename)
+---
 
-if not os.path.exists(md_path):
-    logger.error(f"{md_filename} not found in execution directory: {execution_dir}")
-    sys.exit("Information file not found. Contact administrator.")
+## Resumen Profesional
+Desarrollador especializado en IA y tecnologías emergentes, con experiencia en machine learning y sistemas basados en LLM. Con sólidas habilidades de trabajo en equipo y conocimientos de infraestructura que me permiten desarrollar soluciones completas e innovadoras.
 
-# Función para crear o cargar índice
-def get_or_create_index():
-    # Intentar cargar el índice desde almacenamiento
-    if os.path.exists(INDEX_STORAGE_PATH):
-        try:
-            #logger.info("Loading index from storage...")
-            storage_context = StorageContext.from_defaults(persist_dir=INDEX_STORAGE_PATH)
-            index = load_index_from_storage(storage_context=storage_context)
-            #logger.info("Index loaded successfully.")
-            return index
-        except Exception as e:
-            logger.warning(f"Error loading index: {e}. Creating new index...")
-    
-    # Si no existe o hay error, crear nuevo índice
-    #logger.info("Creating new vector index...")
-    documents = SimpleDirectoryReader(execution_dir).load_data()
-    documents = [doc for doc in documents if doc.metadata.get('file_name') == md_filename]
-    
-    if not documents:
-        logger.error(f"No documents found with name {md_filename}.")
-        sys.exit("No valid documents found. Contact administrator.")
-    
-    # Usar el node_parser mejorado
-    index = VectorStoreIndex.from_documents(
-        documents, 
-        embed_model=Settings.embed_model,
-        transformations=[node_parser]
-    )
-    
-    # Persistir el índice
-    index.storage_context.persist(persist_dir=INDEX_STORAGE_PATH)
-    #logger.info("Index created and persisted successfully.")
-    return index
+---
 
-# Obtener o crear índice
-index = get_or_create_index()
+## Experiencia Laboral
 
-# --- Configuración de prompts personalizados mejorados ---
+### Administrador de Sistemas Cloud & WordPress
+- **Empresa**: Grupo Oro (Prácticas)  
+- **Periodo**: Marzo 2024 - Junio 2024  
+- **Responsabilidades**:
+  - Experiencia en despliegue y mantenimiento de sitios WordPress
+  - Configuración avanzada de servidores
+  - Gestión de DNS/Cloudflare
+  - Optimización SEO
 
-qa_prompt_str = (
-    "Eres un asistente de IA especializado en el TFM (trabajo de fun de master) llamado 'Midas'. Tu tarea es proporcionar respuestas precisas, útiles y detalladas.\n\n"
-    "INSTRUCCIONES DE SÍNTESIS:\n"
-    "1. Analiza cuidadosamente todo el contexto proporcionado.\n"
-    "2. Identifica las piezas de información más relevantes para la consulta específica.\n"
-    "3. Integra coherentemente la información, evitando repeticiones innecesarias.\n"
-    "4. Si la información en el contexto es insuficiente, indícalo claramente.\n"
-    "5. Si hay información contradictoria, menciona las diferentes perspectivas.\n"
-    "6. Organiza tu respuesta de forma lógica, empezando con los puntos más importantes.\n\n"
-    "RESPUESTA:\n"
-    "- Responde de manera clara y directa.\n"
-    "- Incluye detalles específicos del TFM Midas cuando sea relevante.\n"
-    "- Si la consulta es ambigua pero relacionable con el tema, intenta interpretar la intención del usuario.\n"
-    "Información de contexto:\n"
-    "---------------------\n"
-    "{context_str}\n"
-    "---------------------\n"
-    "Consulta: {query_str}\n\n"
-)
+### LLM Quality Specialist
+- **Empresa**: Outlier  
+- **Periodo**: Mayo 2023 - Julio 2024  
+- **Responsabilidades**:
+  - Experiencia en comparación y refinamiento de modelos de lenguaje
+  - Análisis de calidad de datos de entrenamiento
+  - Detección de discrepancias y redacción técnica especializada
 
-chat_text_qa_msgs = [
-    (
-        "system",
-        "Eres un asistente experto especializado en el TFM 'Midas'. Tu objetivo es proporcionar respuestas precisas, "
-        "informativas y bien estructuradas basadas en la información disponible. Utiliza solo los datos proporcionados "
-        "en el contexto para responder, evitando invenciones o suposiciones no respaldadas. Si la información es insuficiente, "
-        "indícalo claramente en lugar de elaborar respuestas imprecisas. Si la consulta es completamente irrelevante con el sistema 'Midas', "
-        "indica amablemente que solo puedes responder sobre ese tema específico. Pero ante la duda, opta por contestar la consulta."
-    ),
-    ("user", qa_prompt_str),
-]
-text_qa_template = ChatPromptTemplate.from_messages(chat_text_qa_msgs)
+---
 
-# Mejorado: reranker para mejor selección de contexto relevante
-rerank = FlagEmbeddingReranker(
-    model="BAAI/bge-reranker-v2-m3", 
-    top_n=10  
-)
+## Proyectos
 
-# Crear query engines con mejoras
-def create_enhanced_query_engine(llm_model, similarity_top_k=30):
-    return index.as_query_engine(
-        llm=llm_model,
-        text_qa_template=text_qa_template,
-        node_postprocessors=[rerank],
-        similarity_top_k=similarity_top_k
-    )
+### MIDAS
+- **Descripción**: Trabajo Final de Máster (TFM) que propone un sistema innovador para automatizar el desarrollo de modelos de machine learning mediante una arquitectura multiagente. MIDAS cubre todo el ciclo de desarrollo ML: desde la generación de datos y visualizaciones, hasta el entrenamiento, validación y despliegue de modelos, permitiendo a profesionales de diversos niveles crear soluciones ML de forma ágil y accesible.
+- **Arquitectura**: Sistema compuesto por 8 módulos especializados, de los cuales desarrollé 5 componentes principales:
+  - **Midas Plot**: Generador de visualizaciones basado en CrewAI
+  - **Midas Touch**: Sistema de agentes expertos para limpieza, entrenamiento y optimización de modelos. Subes los datos y te devuelve el joblib de un modelo de machine learning para predecir la columna especificada.
+  - **Midas Assistant**: Interfaz central basada en LiteLLM con un system prompt especializado
+  - **Midas Architect**: Componente RAG que utiliza Supabase como base de datos vectorial para consultar documentación de frameworks (Pydantic AI, LlamaIndex, CrewAI y AG2), implementado con Gemini 2.0 Flash y documentación scrapeada con Crawl4AI
+  - **Midas Help**: Sistema RAG con LlamaIndex, que selecciona LLMs según la complejidad de la consulta usando BERT para clasificación y reranking para optimizar la recuperación de contexto
+- **Contribución**: Además de desarrollar estos 5 componentes, me encargué de la arquitectura general del sistema y su despliegue.
+- **Repositorio**: [Ver en GitHub](https://github.com/warc0s/MIDAS)
 
-# Crear los query engines mejorados
-query_engine = create_enhanced_query_engine(Settings.llm)
-query_engine_gemini = create_enhanced_query_engine(llm_gemini)
+### LLM StoryTeller
+- **Descripción**: Aplicación web interactiva que utiliza Large Language Models (LLMs) para ayudar a los usuarios a crear historias cautivadoras sin esfuerzo. Presenta características como creación interactiva con asistencia de IA, múltiples géneros y temas, desarrollo de personajes, sugerencias de trama y exportación en varios formatos. La aplicación utiliza modelos de lenguaje pequeños para generar segmentos de historia contextuales basados en la entrada del usuario, con un marco Streamlit que proporciona una interfaz intuitiva.
+- **URL**: [https://llm-storyteller.streamlit.app](https://llm-storyteller.streamlit.app)
+- **Repositorio**: [GitHub](https://github.com/warc0s/llm-storyteller)
 
-# Sistema de concurrencia por sesión (reemplaza el sistema global)
+### ChatCV
+- **Descripción**: Currículum interactivo mediante un chatbot, implementando dos enfoques: LLM+RAG con Llama 3.3 70b + BGE-M3, y sistema basado en Gemini Flash con contexto extendido.
+- **URL**: [https://chatbot.warcos.dev/](https://chatbot.warcos.dev/)
+
+### Gather-Tracker
+- **Fecha**: Junio 2024  
+- **Descripción**: Herramienta desarrollada en JavaScript que extrae datos de "Gather Town" y los notifica a un canal de Telegram.  
+- **Repositorio**: [GitHub](https://github.com/warc0s/Gather-Tracker)
+
+### Fox-Detector
+- **Fecha**: Enero 2024  
+- **Descripción**: Modelo de visión por computadora basado en DenseNet121 para detectar zorros en imágenes, usando Keras y TensorFlow.  
+- **Repositorio**: [GitHub](https://github.com/warc0s/Fox-Detector)
+
+### XLSX a JSONL para Fine-Tuning de ChatGPT
+- **Fecha**: Octubre 2024  
+- **Descripción**: Script en Python que convierte archivos Excel (.xlsx) a formato JSONL, facilitando la creación de datasets estructurados de entrenamiento y validación para el fine-tuning de ChatGPT.  
+- **Repositorio**: [GitHub](https://github.com/warc0s/xlsx-to-jsonl/)
+
+### HDD Failure ML
+- **Fecha**: Noviembre 2024
+- **Descripción**: Sistema predictivo de fallos en discos duros mediante ensemble de modelos Random Forest y XGBoost con tres configuraciones optimizadas: máxima precisión (99%), máximo recall (86%) y balance F1 (80%). Aplicable universalmente a cualquier fabricante mediante datos SMART.
+
+---
+
+## Stack Tecnológico
+
+- Desarrollo de modelos de Machine Learning y Deep Learning (TensorFlow/Keras) con énfasis en redes neuronales.
+- Implementación de sistemas NLP y LLM con prompt engineering avanzado y fine-tuning de modelos.
+- Desarrollo en Python con dominio de bibliotecas científicas (NumPy, Pandas...) para implementar soluciones IA.
+- Experiencia en sistemas de embeddings y bases de datos vectoriales para procesamiento semántico.
+- Desarrollo con frameworks de agentes autónomos o RAG (CrewAI, LlamaIndex) para automatización IA.
+
+---
+
+## Habilidades
+- Capacidad analítica y resolución de problemas, con enfoque en descomposición de tareas complejas.
+- Autodidacta, adquiriendo conocimiento de manera independiente.
+
+---
+
+## Educación
+
+### CPIFP Alan Turing - Accenture
+- **Máster FP en Inteligencia Artificial y Big Data**  
+- **Periodo**: Sept. 2024 - Jun. 2025 (en curso)  
+- Modalidad dual de 600 horas en oficinas de Accenture, con enfoque en IA, machine learning, programación y Big Data.
+
+### EducacionIT
+- **BootCamp Linux & Cloud ("Carrera Linux")**  
+- **Periodo**: Jun. 2024 - Ago. 2025 (en curso)  
+- Incluye Linux, redes, Shell, bases de datos SQL, ciberseguridad, hosting, cloud computing y contenedores.
+
+### MEDAC
+- **Ciclo Formativo de Grado Superior en Desarrollo de Aplicaciones Web (DAW)**  
+- **Periodo**: Sept. 2022 - Jun. 2024  
+- Especialización en áreas prácticas de la informática: HTML, CSS, JavaScript, PHP, Flask, SQL, y más.
+
+### Universidad de Málaga
+- **Grado en Ingeniería de Software (SIN FINALIZAR)**  
+- **Periodo**: Sept. 2019 - Jun. 2022 
+- Cursé tres años, enfocándome en desarrollar habilidades técnicas aplicables en IA y desarrollo web, con la posibilidad de retomar en el futuro.
+
+---
+
+## Idiomas
+
+- **Español**: Nativo
+- **Inglés**: Avanzado
+  - Cambridge B1
+  - EF SET English Certificate 71/100 (C1 Proficient)
+
+---
+
+## Licencias y Certificaciones
+
+- **PCEP™ – Certified Entry-Level Python Programmer**  
+  - **Expedición**: Oct. 2024
+
+- **EF SET English Certificate 71/100 (C1 Proficient)**  
+  - **Expedición**: Abr. 2024
+
+- **B1 Preliminary English Test (Cambridge)**  
+  - **Expedición**: Jun. 2017, ID de la credencial: 0058332818
+
+Al responder preguntas:
+- Sé conciso pero completo
+- Destaca experiencias y habilidades relevantes
+- Presenta la información de manera bien estructurada
+- No inventes información que no esté presente en el CV
+- Si no estás seguro sobre detalles específicos, indícalo en lugar de hacer suposiciones
+- Si te preguntan sobre proyectos técnicos, proporciona detalles técnicos relevantes 
+- Si te preguntan por habilidades, explica cómo se han aplicado en experiencias concretas
+
+Esta información es de un profesional real, así que tus respuestas deben ser precisas y respetuosas con su carrera.
+"""
+
+# Sistema de concurrencia por sesión
 processing_queries = {}  # {session_id: is_processing}
 processing_lock = threading.Lock()
 
@@ -315,7 +308,7 @@ def handle_query():
         
         # Añadir la consulta actual al historial
         add_to_history(session_id, 'user', user_input)
-        #logger.info(f"Consulta registrada. Sesión {session_id} tiene {len(history)} mensajes")
+        logger.info(f"Consulta registrada. Sesión {session_id} tiene {len(history)} mensajes")
 
         # Verificar si esta sesión específica ya está procesando una consulta
         with processing_lock:
@@ -328,25 +321,25 @@ def handle_query():
         try:
             # Selección de LLM basada en la entrada del usuario
             if selected_llm != 'Automatico':
-                if selected_llm == "Llama 3.3 70B":
-                    current_engine = query_engine
-                    llm_usado = 'Llama 3.3 70B'
-                elif selected_llm == "Gemini 2.0 Flash":
-                    current_engine = query_engine_gemini
+                if selected_llm == "Gemini 2.0 Flash":
+                    model = "gemini/gemini-2.0-flash"
                     llm_usado = 'Gemini 2.0 Flash'
+                elif selected_llm == "Gemini 2.0 Flash-Lite":
+                    model = "gemini/gemini-2.0-flash-lite"
+                    llm_usado = 'Gemini 2.0 Flash-Lite'
                 else:
                     # Liberar el bloqueo antes de retornar error
                     with processing_lock:
                         processing_queries[session_id] = False
                     return jsonify({'error': 'Opción de LLM no reconocida.'}), 400
-                #logger.info(f"LLM forzado: {llm_usado}")
+                logger.info(f"LLM forzado: {llm_usado}")
             else:
                 # Flujo automático: clasificar el prompt con BERT
                 dificultad = clasificar_dificultad(user_input)
-                #logger.info(f"Prompt classified with difficulty: {dificultad}")
+                logger.info(f"Prompt clasificado con dificultad: {dificultad}")
                 
                 if dificultad == 2:
-                    response_text = "Lo siento, no puedo responder a eso. Si crees que se trata de un error, por favor, reformula la pregunta."
+                    response_text = "Lo siento, no puedo responder a eso ya que no está relacionado la información del CV de Marcos. Si crees que se trata de un error, por favor, reformula la pregunta."
                     # Añadir la respuesta al historial
                     add_to_history(session_id, 'assistant', response_text)
                     
@@ -363,10 +356,10 @@ def handle_query():
                     return jsonify(response_data)
                 
                 if dificultad == 0:
-                    current_engine = query_engine
-                    llm_usado = 'Llama 3.3 70B'
+                    model = "gemini/gemini-2.0-flash-lite"
+                    llm_usado = 'Gemini 2.0 Flash-Lite'
                 elif dificultad == 1:
-                    current_engine = query_engine_gemini
+                    model = "gemini/gemini-2.0-flash"
                     llm_usado = 'Gemini 2.0 Flash'
                 else:
                     # Liberar el bloqueo antes de retornar error
@@ -374,22 +367,29 @@ def handle_query():
                         processing_queries[session_id] = False
                     return jsonify({'error': 'Clasificación de pregunta desconocida.'}), 400
 
-            #logger.info(f"Procesando consulta con contexto. Sesión: {session_id}")
+            logger.info(f"Procesando consulta con {llm_usado}. Sesión: {session_id}")
             
-            # Obtener historial previo (excluyendo la consulta actual recién añadida)
-            previous_history = history[:-1] if len(history) > 1 else []
+            # Obtener historial formateado para la API
+            formatted_history = format_conversation_history(history)
             
-            # Modificar la consulta para incluir el historial relevante
-            enhanced_query = modify_query_with_history(previous_history, user_input)
-            #logger.info(f"Consulta mejorada creada con contexto. Longitud historia: {len(previous_history)}")
+            # Crear mensajes para la llamada a la API
+            messages = [{"role": "system", "content": system_prompt}]
+            messages.extend(formatted_history)
             
-            # Realizar la consulta con el contexto mejorado
-            response = current_engine.query(enhanced_query)
-            response_text = str(response)
+            # Llamar a LiteLLM con el proveedor Google AI Studio
+            response = litellm.completion(
+                model=model,
+                messages=messages,
+                temperature=0.3,
+                api_key=GOOGLE_API_KEY,
+            )
+            
+            # Extraer texto de respuesta
+            response_text = response.choices[0].message.content
             
             # Añadir la respuesta al historial
             add_to_history(session_id, 'assistant', response_text)
-            #logger.info(f"Respuesta añadida. Ahora la sesión tiene {len(history)} mensajes")
+            logger.info(f"Respuesta añadida. Ahora la sesión tiene {len(history)} mensajes")
             
             response_data = {
                 'response': response_text,
@@ -412,7 +412,7 @@ def handle_query():
             with processing_lock:
                 if session_id in processing_queries:
                     processing_queries[session_id] = False
-        logger.error(f"Error procesando consulta: {e}")
+        logger.error(f"Error procesando consulta: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/clear_history', methods=['POST'])
@@ -423,7 +423,7 @@ def clear_conversation_history():
         
         if session_id and session_id in conversation_history:
             conversation_history[session_id] = []
-            #logger.info(f"Historial borrado para sesión {session_id}")
+            logger.info(f"Historial borrado para sesión {session_id}")
             # Actualizar timestamp de última actividad
             last_activity[session_id] = datetime.now()
             return jsonify({
@@ -437,7 +437,7 @@ def clear_conversation_history():
             'session_id': session_id if session_id else str(uuid.uuid4())
         })
     except Exception as e:
-        logger.error(f"Error borrando historial: {e}")
+        logger.error(f"Error borrando historial: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

@@ -1,0 +1,5 @@
+# Ignorar archivos .safetensors
+*.safetensors
+
+# Ignorar archivos de variables de entorno
+.env

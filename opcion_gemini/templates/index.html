@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midas Help | Midas System</title>
+    <title>Chatbot CV - Gemini Flash</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="icon" type="image/png" href="https://github.com/warc0s/MIDAS/blob/main/Extra/Logos/transparentes/help_trans.png?raw=true">
+    <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/google/material-design-icons@master/png/social/person/materialicons/24dp/2x/baseline_person_white_24dp.png">
     <style>
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -27,16 +27,16 @@
         .chatbot-message {
             background: linear-gradient(145deg, #121828 0%, #1A2236 100%);
             box-shadow: 0 8px 32px rgba(18, 24, 40, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(128, 90, 213, 0.15);
         }
 
         .user-message {
-            background: linear-gradient(45deg, #D4AF37 0%, #FFD700 30%, #FFE55C 100%);
-            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.2);
+            background: linear-gradient(45deg, #805AD5 0%, #9F7AEA 30%, #B794F4 100%);
+            box-shadow: 0 8px 24px rgba(128, 90, 213, 0.2);
         }
 
         .ai-gradient-text {
-            background: linear-gradient(135deg, #D4AF37 0%, #FFE55C 100%);
+            background: linear-gradient(135deg, #805AD5 0%, #B794F4 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -55,20 +55,20 @@
         }
 
         .prose :where(code):not(:where([class~="not-prose"] *)) {
-            background: rgba(212, 175, 55, 0.15);
+            background: rgba(128, 90, 213, 0.15);
             padding: 0.2em 0.4em;
             border-radius: 0.25rem;
         }
 
-        /* Nuevos estilos añadidos */
+        /* Additional styles */
         .chatbot-message h3 {
-            color: #FFD700 !important;
+            color: #9F7AEA !important;
             font-weight: 600 !important;
             font-size: clamp(1rem, 2vw, 1.125rem) !important;
             margin-bottom: 0.5rem !important;
         }
 
-        /* Estilos para el aviso de procesamiento */
+        /* Processing notice styles */
         .processing-notice {
             display: none;
         }
@@ -76,28 +76,74 @@
             display: block;
         }
 
-        /* Estilos responsivos */
+        /* Improved Responsive styles */
         @media (max-width: 640px) {
             .chat-container {
                 width: 100% !important;
-                padding: 0.5rem;
+                padding: 0.5rem !important;
             }
             
             .chatbot-message, .user-message {
-                padding: 1rem !important;
+                padding: 0.75rem !important;
+                max-width: 100% !important;
             }
-
+            
+            .chatbot-message > div, .user-message > div {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .message-icon {
+                width: 2rem !important;
+                height: 2rem !important;
+                margin-bottom: 0.5rem;
+            }
+            
             input[type="text"] {
                 font-size: 0.9rem;
             }
 
-            header h1 {
-                font-size: clamp(1.25rem, 4vw, 1.5rem);
+            header {
+                padding-top: 0.75rem !important;
             }
-
+            
+            header h1 {
+                font-size: clamp(1.1rem, 4vw, 1.5rem);
+            }
+            
+            header > div {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+                align-items: flex-start !important;
+            }
+            
+            header > div > div:last-child {
+                width: 100% !important;
+            }
+            
             #clearChat {
                 padding: 0.5rem 1rem;
                 font-size: 0.9rem;
+                margin-top: 0.5rem;
+                width: 100%;
+            }
+            
+            .llm-selector-container {
+                width: 100% !important;
+                margin-top: 0.5rem;
+            }
+            
+            #llmSelector {
+                width: 100% !important;
+            }
+
+            .intro-card {
+                margin-bottom: 0.75rem !important;
+            }
+
+            .close-btn {
+                top: 0.5rem !important;
+                right: 0.5rem !important;
             }
         }
 
@@ -106,6 +152,30 @@
                 width: 95% !important;
                 margin-left: auto;
                 margin-right: auto;
+                padding: 0 0.75rem !important;
+            }
+            
+            .intro-card {
+                margin-bottom: 1rem !important;
+            }
+            
+            header > div {
+                flex-wrap: wrap !important;
+            }
+            
+            #clearChat {
+                order: 3;
+                margin-top: 0.5rem;
+            }
+            
+            .hr-div {
+                order: 2;
+                width: 100% !important;
+                margin: 0.5rem 0 !important;
+            }
+            
+            .llm-selector-container {
+                order: 1;
             }
         }
 
@@ -164,19 +234,19 @@
             background: transparent;
         }
         #chatContainer::-webkit-scrollbar-thumb {
-            background: linear-gradient(145deg, #D4AF37, #FFE55C);
+            background: linear-gradient(145deg, #805AD5, #B794F4);
             border-radius: 4px;
         }
         #chatContainer::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(145deg, #FFE55C, #D4AF37);
+            background: linear-gradient(145deg, #B794F4, #805AD5);
         }
 
         #chatContainer {
             scrollbar-width: thin;
-            scrollbar-color: #D4AF37 transparent;
+            scrollbar-color: #805AD5 transparent;
         }
 
-        /* Animación para puntos suspensivos */
+        /* Animation for ellipsis */
         @keyframes ellipsis {
             0% { content: '.'; }
             33% { content: '..'; }
@@ -191,7 +261,7 @@
             text-align: left;
         }
 
-        /* Estilos mejorados para elementos markdown */
+        /* Enhanced markdown styles */
         .prose ul {
             list-style-type: disc !important;
             padding-left: 1.5em !important;
@@ -210,7 +280,7 @@
         }
 
         .prose li::marker {
-            color: rgba(212, 175, 55, 0.8) !important;
+            color: rgba(128, 90, 213, 0.8) !important;
         }
 
         .prose p {
@@ -222,7 +292,7 @@
         }
 
         .prose blockquote {
-            border-left: 3px solid rgba(212, 175, 55, 0.5);
+            border-left: 3px solid rgba(128, 90, 213, 0.5);
             padding-left: 1em;
             margin: 1em 0;
             color: #CBD5E0;
@@ -230,7 +300,7 @@
         }
 
         .prose code {
-            background-color: rgba(212, 175, 55, 0.15);
+            background-color: rgba(128, 90, 213, 0.15);
             border-radius: 0.25rem;
             padding: 0.2em 0.4em;
             font-family: monospace;
@@ -242,7 +312,7 @@
             padding: 1em;
             margin: 1em 0;
             overflow-x: auto;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(128, 90, 213, 0.2);
         }
 
         .prose pre code {
@@ -253,7 +323,7 @@
         }
 
         .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-            color: #FFD700 !important;
+            color: #9F7AEA !important;
             margin-top: 1.5em !important;
             margin-bottom: 0.75em !important;
             font-weight: 600 !important;
@@ -266,54 +336,85 @@
         }
 
         .prose th, .prose td {
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(128, 90, 213, 0.2);
             padding: 0.5em;
             text-align: left;
         }
 
         .prose th {
-            background-color: rgba(212, 175, 55, 0.1);
+            background-color: rgba(128, 90, 213, 0.1);
         }
 
-        /* Espacio entre párrafos */
+        /* Spacing between paragraphs */
         .prose br + br {
             display: block;
             content: "";
             margin-top: 1em;
         }
         
+        /* Close button styles */
+        .close-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background-color: rgba(128, 90, 213, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        
+        .close-btn:hover {
+            background-color: rgba(128, 90, 213, 0.4);
+            transform: rotate(90deg);
+        }
+        
+        .intro-card {
+            position: relative;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .intro-card.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="h-full bg-[#0B0F19]">
     <div class="flex flex-col h-full mx-auto chat-container">
-        <!-- Header Premium -->
-        <header class="pt-8 px-4">
-            <div class="flex items-center space-x-4">
+        <!-- Header Section -->
+        <header class="pt-8 px-4 sm:px-6">
+            <div class="flex items-center space-x-4 flex-wrap sm:flex-nowrap">
                 <div class="relative group">
-                    <div class="absolute inset-0 bg-gradient-to-r from-[#D4AF37] to-[#FFE55C] rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#805AD5] to-[#B794F4] rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
                     <div class="relative bg-[#121828] px-6 py-3 rounded-xl border border-[#2D3748]">
-                        <h1 class="text-2xl font-bold ai-gradient-text">Midas Help</h1>
+                        <h1 class="text-2xl font-bold ai-gradient-text">Chatbot CV - Gemini Flash</h1>
                     </div>
                 </div>
-                <button id="clearChat" class="px-4 py-2 bg-[#121828] hover:bg-[#1A2236] text-[#FFD700] rounded-xl border border-[#2D3748] transition-all hover:border-[#D4AF37] flex items-center gap-2">
+                <button id="clearChat" class="px-4 py-2 bg-[#121828] hover:bg-[#1A2236] text-[#9F7AEA] rounded-xl border border-[#2D3748] transition-all hover:border-[#805AD5] flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                     </svg>
                     Limpiar chat
                 </button>
-                <div class="h-px flex-1 bg-gradient-to-r from-[#D4AF3722] via-[#D4AF37aa] to-[#D4AF3722]"></div>
-                <!-- Selector de LLM -->
-                <div class="flex items-center space-x-3 relative group">
+                <div class="h-px flex-1 bg-gradient-to-r from-[#805AD522] via-[#805AD5aa] to-[#805AD522] hr-div"></div>
+                <!-- LLM Selector -->
+                <div class="flex items-center space-x-3 relative group llm-selector-container">
                     <label for="llmSelector" class="text-[#CBD5E0] text-sm font-medium">LLM:</label>
                     <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-r from-[#D4AF37] to-[#FFE55C] opacity-0 blur group-hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
-                        <select id="llmSelector" class="appearance-none bg-[#121828] border border-[#2D3748] text-[#FFD700] rounded-xl px-4 py-2 pr-10 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all duration-200 hover:border-[#D4AF37] cursor-pointer shadow-sm hover:shadow-md">
+                        <div class="absolute inset-0 bg-gradient-to-r from-[#805AD5] to-[#B794F4] opacity-0 blur group-hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
+                        <select id="llmSelector" class="appearance-none bg-[#121828] border border-[#2D3748] text-[#9F7AEA] rounded-xl px-4 py-2 pr-10 focus:outline-none focus:border-[#805AD5] focus:ring-1 focus:ring-[#805AD5] transition-all duration-200 hover:border-[#805AD5] cursor-pointer shadow-sm hover:shadow-md">
                             <option value="Automatico" selected>🤖 Automático</option>
-                            <option value="Llama 3.3 70B">🦙 Llama 3.3 70B</option>
-                            <option value="Gemini 2.0 Flash">💫 Gemini 2.0 Flash</option>
+                            <option value="Gemini 2.0 Flash">⚡ Gemini 2.0 Flash</option>
+                            <option value="Gemini 2.0 Flash-Lite">💫 Gemini 2.0 Flash-Lite</option>
                         </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg class="h-4 w-4 text-[#D4AF37]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <svg class="h-4 w-4 text-[#805AD5]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
                         </div>
@@ -325,42 +426,27 @@
         <!-- Chat Container -->
         <div class="flex-1 overflow-hidden relative mt-4">
             <div class="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#2D3748] scrollbar-track-transparent px-4" id="chatContainer">
-                <!-- Mensaje del Sistema -->
-                <div class="message-entrance mb-6">
-                    <div class="chatbot-message rounded-[1.75rem] p-5 backdrop-blur-lg">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#FFE55C] flex items-center justify-center animate-float">
-                                <svg class="w-5 h-5 text-[#0B0F19]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                    <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 space-y-2.5">
-                                <h3 class="text-[#FFD700] font-semibold text-lg">Midas Help</h3>
-                                <p class="text-[#CBD5E0] leading-relaxed text-[15px]">Hola, soy tu asistente de inteligencia artificial sobre el TFM Midas. ¿En qué puedo ayudarte hoy?</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- El chatContainer estará vacío aquí, el contenido se generará dinámicamente -->
             </div>
         </div>
 
-        <!-- Área de Entrada -->
+        <!-- Input Area -->
         <div class="pb-8 pt-4 px-4">
             <div class="relative group">
-                <div class="absolute inset-0 bg-gradient-to-r from-[#D4AF37] to-[#FFE55C] blur opacity-10 group-hover:opacity-20 transition-opacity duration-300 rounded-2xl"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-[#805AD5] to-[#B794F4] blur opacity-10 group-hover:opacity-20 transition-opacity duration-300 rounded-2xl"></div>
                 <div class="relative flex items-center space-x-4 bg-[#121828] rounded-2xl p-4 border border-[#2D3748] shadow-2xl">
                     <input 
                         id="userInput"
                         type="text" 
-                        placeholder="Escribe tu consulta..." 
-                        data-default-placeholder="Escribe tu consulta..."
+                        placeholder="Pregunta sobre mi CV..." 
+                        data-default-placeholder="Pregunta sobre mi CV..."
                         data-processing-placeholder="Espera a que el chatbot conteste para enviar otro mensaje"
                         class="flex-1 bg-transparent text-[#E2E8F0] placeholder-[#4A5568] focus:outline-none text-[15px]"
                     >
                     <button 
                         id="sendButton"
                         onclick="sendMessage()"
-                        class="p-3 bg-gradient-to-br from-[#D4AF37] to-[#FFE55C] rounded-xl hover:scale-105 transition-transform duration-200 shadow-lg"
+                        class="p-3 bg-gradient-to-br from-[#805AD5] to-[#B794F4] rounded-xl hover:scale-105 transition-transform duration-200 shadow-lg"
                     >
                         <svg class="w-6 h-6 text-[#0B0F19]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -368,70 +454,137 @@
                     </button>
                 </div>
             </div>
-            <!-- Aviso de procesamiento -->
+            <!-- Processing notice -->
             <div id="processingNotice" class="processing-notice text-center text-[#CBD5E0] text-sm mt-2">
-                <!-- Este aviso se puede utilizar para mostrar algún mensaje extra si se desea -->
+                <!-- This notice can be used to display an extra message if desired -->
             </div>
         </div>
     </div>
 
     <script>
+        // Function to close a card
+        function closeCard(cardId) {
+            const card = document.getElementById(cardId);
+            if (card) {
+                card.classList.add('hidden');
+            }
+        }
+        
         class ChatSystem {
             constructor() {
-                this.container = document.getElementById('chatContainer')
-                this.history = JSON.parse(localStorage.getItem('chatHistory')) || []
-                this.loadingMessageId = null
-                this.loadingTimer = null
-                this.loadingStepIndex = 0
+                this.container = document.getElementById('chatContainer');
+                this.history = JSON.parse(localStorage.getItem('chatHistory')) || [];
+                this.loadingMessageId = null;
+                this.loadingTimer = null;
+                this.loadingStepIndex = 0;
                 this.progressSteps = [
-                    "Obteniendo embeddings", 
-                    "Utilizando el reranker", 
-                    "Escribiendo respuesta",
+                    "Analizando pregunta", 
+                    "Procesando contexto", 
+                    "Elaborando respuesta",
                     "Refinando los detalles",
-                    "Elaborando conclusiones",
+                    "Conectando con el CV",
                     "Verificando información",
                     "Añadiendo retoques finales",
                     "Completando respuesta"
-                ]
-                this.welcomeMessage = {
-                    role: 'assistant',
-                    content: '### Midas Help\n\nHola, soy tu asistente de inteligencia artificial sobre el TFM Midas. ¿En qué puedo ayudarte hoy?'
-                }
-                this.processing = false
+                ];
+                this.processing = false;
                 
-                // Inicializar la sesión si no existe
+                // Initialize session if it doesn't exist
                 if (!localStorage.getItem('chat_session_id')) {
                     localStorage.setItem('chat_session_id', '');
                 }
                 
-                if(this.history.length === 0) {
-                    this.history.push(this.welcomeMessage)
-                    this.saveHistory()
-                }
-
-                this.setupEventListeners()
-                this.loadHistory()
+                this.setupEventListeners();
+                this.loadHistory();
                 
-                console.log('Chat inicializado. ID de sesión:', localStorage.getItem('chat_session_id'));
+                //console.log('Chat inicializado. ID de sesión:', localStorage.getItem('chat_session_id'));
             }
 
             setupEventListeners() {
                 document.getElementById('userInput').addEventListener('keypress', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        this.sendMessage()
+                        e.preventDefault();
+                        this.sendMessage();
                     }
-                })
+                });
 
                 document.getElementById('clearChat').addEventListener('click', () => {
-                    this.clearChat()
-                })
+                    this.clearChat();
+                });
+            }
+
+            // Método para crear los cards de bienvenida e información
+            createIntroCards() {
+                // Card de bienvenida
+                const welcomeCard = document.createElement('div');
+                welcomeCard.id = 'welcomeCard';
+                welcomeCard.className = 'intro-card message-entrance mb-6';
+                
+                welcomeCard.innerHTML = `
+                    <div class="close-btn" onclick="closeCard('welcomeCard')">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                    <div class="chatbot-message rounded-[1.75rem] p-5 backdrop-blur-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#805AD5] to-[#B794F4] flex items-center justify-center animate-float message-icon">
+                                <svg class="w-5 h-5 text-[#0B0F19]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 space-y-2.5">
+                                <h3 class="text-[#9F7AEA] font-semibold text-lg">Chatbot CV - Gemini Flash</h3>
+                                <p class="text-[#CBD5E0] leading-relaxed text-[15px]">Hola, soy un asistente virtual especializado en la información del CV de Marcos. ¿En qué puedo ayudarte hoy?</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Card de información
+                const infoCard = document.createElement('div');
+                infoCard.id = 'infoCard';
+                infoCard.className = 'intro-card message-entrance mb-6';
+                
+                infoCard.innerHTML = `
+                    <div class="close-btn" onclick="closeCard('infoCard')">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                    <div class="chatbot-message rounded-[1.75rem] p-5 backdrop-blur-lg">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#805AD5] to-[#B794F4] flex items-center justify-center shrink-0 mt-1 message-icon">
+                                <svg class="w-5 h-5 text-[#0B0F19]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-[#9F7AEA] font-semibold text-lg mb-2">Sobre este chatbot</h3>
+                                <p class="text-[#CBD5E0] leading-relaxed text-[15px] mb-2">Este es un chatbot inteligente diseñado para consultar información sobre el perfil profesional de Marcos. Puedes hacer preguntas específicas sobre su experiencia, habilidades, proyectos o evaluar si encajaría en un rol particular.</p>
+                                <p class="text-[#CBD5E0] leading-relaxed text-[15px]">El sistema utiliza un modelo BERT para clasificar las preguntas en fáciles o difíciles, optimizando costes al usar el modelo más adecuado para cada consulta. Las preguntas no relacionadas con el CV son automáticamente bloqueadas para mantener el enfoque profesional.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                return { welcomeCard, infoCard };
             }
 
             loadHistory() {
-                this.container.innerHTML = ''
-                this.history.forEach(msg => this.addMessageElement(msg.role, msg.content, false, msg.llm))
-                this.scrollToBottom()
+                // Limpiar el contenedor
+                this.container.innerHTML = '';
+                
+                // Agregar las tarjetas de introducción siempre
+                const { welcomeCard, infoCard } = this.createIntroCards();
+                this.container.appendChild(welcomeCard);
+                this.container.appendChild(infoCard);
+                
+                // Añadir los mensajes de la conversación
+                this.history.forEach(msg => this.addMessageElement(msg.role, msg.content, false, msg.llm));
+                
+                // Desplazar al final
+                this.scrollToBottom();
             }
 
             async sendMessage() {
@@ -457,10 +610,10 @@
                     return;
                 }
 
-                // Capturamos la opción de LLM seleccionada
+                // Get the selected LLM option
                 const llmSelector = document.getElementById("llmSelector").value;
                 
-                // Obtenemos el session_id almacenado
+                // Get the stored session_id
                 const session_id = localStorage.getItem('chat_session_id') || '';
                 
                 input.value = ''
@@ -481,10 +634,10 @@
                     if (!response.ok) throw new Error(await response.text())
                     const data = await response.json()
                     
-                    // Guardar el session_id devuelto por el servidor
+                    // Save the session_id returned by the server
                     if (data.session_id) {
                         localStorage.setItem('chat_session_id', data.session_id);
-                        console.log('Session ID actualizado:', data.session_id);
+                        //console.log('Session ID actualizado:', data.session_id);
                     }
 
                     this.removeLoading()
@@ -518,19 +671,19 @@
                 div.innerHTML = `
                     <div class="${isAI ? '' : 'flex justify-end'}">
                         <div class="${isAI ? 
-                            'chatbot-message rounded-[1.75rem] hover:border-[#D4AF3733] transition-all relative' : 
+                            'chatbot-message rounded-[1.75rem] hover:border-[#805AD533] transition-all relative' : 
                             'user-message rounded-[1.25rem] hover:shadow-xl transition-transform'} 
-                            p-5 max-w-[85%] transform hover:scale-[1.01]">
+                            p-5 max-w-[85%] sm:max-w-[85%] transform hover:scale-[1.01]">
                             <div class="flex items-center gap-4 ${isAI ? '' : 'flex-row-reverse'}">
                                 ${isAI ? ` 
-                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#FFE55C] flex items-center justify-center shrink-0">
+                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#805AD5] to-[#B794F4] flex items-center justify-center shrink-0 message-icon">
                                         <svg class="w-5 h-5 text-[#0B0F19]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                             <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
                                         </svg>
                                     </div>
                                 ` : ` 
-                                    <div class="w-9 h-9 rounded-xl bg-[#0B0F19]/80 flex items-center justify-center shrink-0 border border-[#D4AF37]/20">
-                                        <svg class="w-5 h-5 text-[#FFE55C]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <div class="w-9 h-9 rounded-xl bg-[#0B0F19]/80 flex items-center justify-center shrink-0 border border-[#805AD5]/20 message-icon">
+                                        <svg class="w-5 h-5 text-[#B794F4]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
                                         </svg>
                                     </div>
@@ -538,7 +691,7 @@
                                 <div class="flex-1 ${isAI ? 'text-[#CBD5E0]' : 'text-[#0B0F19]'} prose prose-invert max-w-none text-[15px] leading-snug">
                                     ${marked.parse(content)}
                                     ${isAI && llm ? `
-                                        <div class="text-[10px] text-[#D4AF37] opacity-70 absolute bottom-2 right-4 italic">
+                                        <div class="text-[10px] text-[#805AD5] opacity-70 absolute bottom-2 right-4 italic">
                                             ${llm}
                                         </div>
                                     ` : ''}
@@ -550,6 +703,14 @@
 
                 if (!animate) div.style.opacity = 1
                 this.container.appendChild(div)
+                
+                // Animate the message entrance
+                if (animate) {
+                    setTimeout(() => {
+                        div.style.opacity = 1
+                    }, 10)
+                }
+                
                 return div
             }
 
@@ -560,7 +721,7 @@
                 div.innerHTML = `
                     <div class="chatbot-message rounded-[1.75rem] p-5 backdrop-blur-lg">
                         <div class="flex items-center space-x-4">
-                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#FFE55C] flex items-center justify-center">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#805AD5] to-[#B794F4] flex items-center justify-center message-icon">
                                 <div class="w-5 h-5 border-2 border-[#0B0F19] border-t-transparent rounded-full animate-spin"></div>
                             </div>
                             <div class="text-[#CBD5E0] text-[15px] progress-text">${this.progressSteps[0]}</div>
@@ -571,23 +732,23 @@
                 this.scrollToBottom()
                 this.loadingStepIndex = 0;
                 
-                // Actualiza el mensaje cada 7 segundos para las primeras etapas, luego cada 5 segundos
+                // Update the message every 7 seconds for the first stages, then every 5 seconds
                 this.loadingTimer = setInterval(() => {
                     const progressElement = document.querySelector("#loadingMessage .progress-text");
                     if (!progressElement) return;
                     
                     if (this.loadingStepIndex < 2) {
-                        // Para las primeras dos etapas (embeddings y reranker), avanzamos cada 7 segundos
+                        // For the first two stages, advance every 7 seconds
                         this.loadingStepIndex++;
                         progressElement.innerText = this.progressSteps[this.loadingStepIndex];
                         
-                        // Si llegamos a la etapa de escritura, cambiamos el intervalo a 5 segundos
+                        // If we reach the writing stage, change interval to 5 seconds
                         if (this.loadingStepIndex === 2) {
                             clearInterval(this.loadingTimer);
                             this.loadingTimer = setInterval(() => {
-                                // Rotar entre los mensajes de escritura (índices 2 a 7)
+                                // Rotate between writing messages (indices 2 to 7)
                                 this.loadingStepIndex++;
-                                if (this.loadingStepIndex > 7) this.loadingStepIndex = 2; // Volver a los mensajes de escritura
+                                if (this.loadingStepIndex > 7) this.loadingStepIndex = 2; // Return to writing messages
                                 progressElement.innerText = this.progressSteps[this.loadingStepIndex];
                             }, 5000);
                         }
@@ -615,10 +776,10 @@
             }
 
             clearChat() {
-                // Obtener el session_id actual
+                // Get current session_id
                 const session_id = localStorage.getItem('chat_session_id') || '';
                 
-                // Limpiar el historial en el servidor
+                // Clear conversation history on server
                 fetch('/clear_history', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -628,14 +789,16 @@
                 .then(data => {
                     if (data.session_id) {
                         localStorage.setItem('chat_session_id', data.session_id);
-                        console.log('Historia borrada en el servidor, nuevo session_id:', data.session_id);
+                        //console.log('Historia borrada en el servidor, nuevo session_id:', data.session_id);
                     }
                 })
                 .catch(error => console.error('Error al borrar historial:', error));
                 
-                // Borrar historial local
-                this.history = [this.welcomeMessage];
+                // Clear local history
+                this.history = [];
                 this.saveHistory();
+                
+                // Recargar la interfaz (incluyendo las tarjetas de introducción)
                 this.loadHistory();
             }
         }
@@ -654,7 +817,7 @@
             xhtml: false
         });
 
-        const chatSystem = new ChatSystem()
+        const chatSystem = new ChatSystem();
     </script>
 </body>
 </html>
