@@ -1,5 +1,7 @@
 # ChatBot de CV: Comparativa RAG vs Tamaño de Contexto
 
+![Banner](https://github.com/warc0s/Chatbot_CV/blob/dev/extra/banner.png?raw=true)
+
 ## Descripción General
 Este proyecto implementa y evalúa dos tecnologías avanzadas de chatbot utilizando la información de mi currículum profesional. Ofrece un análisis comparativo entre dos enfoques de inteligencia artificial: RAG (Generación Aumentada por Recuperación) y modelos con gran ventana de contexto.
 
