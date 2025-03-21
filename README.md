@@ -1,6 +1,6 @@
 # 🤖 ChatBot CV: RAG vs Context Size
 
-![Banner](https://github.com/warc0s/Chatbot_CV/blob/dev/extra/banner.png?raw=true)
+![Banner](https://github.com/warc0s/Chatbot_CV/blob/main/extra/banner.png?raw=true)
 
 ## 📑 Índice
 - [Descripción General](#descripción-general)
