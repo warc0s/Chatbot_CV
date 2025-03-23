@@ -3,229 +3,848 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbots sobre mi CV - MGE</title>
+    <title>ChatBots CV - Comparativa RAG vs Context</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- AOS - Animate On Scroll Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --primary-dark: #3730a3;
+            --rag-color: #0ea5e9;
+            --rag-light: #e0f2fe;
+            --rag-dark: #0369a1;
+            --gemini-color: #8b5cf6;
+            --gemini-light: #f3e8ff;
+            --gemini-dark: #6d28d9;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --white: #ffffff;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(to bottom, var(--gray-50), var(--gray-100));
+            color: var(--gray-800);
+            line-height: 1.6;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            padding: 3rem 1.5rem;
         }
 
         .container {
-            background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
-            max-width: 1200px;
             width: 100%;
-            padding: 50px 40px;
-            text-align: center;
-            animation: fadeIn 1s ease-in-out;
+            max-width: 1300px;
+            margin: 0 auto;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            padding: 3rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--rag-color), var(--gemini-color));
         }
 
         .header {
-            margin-bottom: 30px;
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
         }
 
         .header h1 {
-            font-size: 2.8em;
-            color: #2c3e50;
-            margin-bottom: 10px;
+            color: var(--gray-900);
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+        }
+
+        .text-gradient {
+            background: linear-gradient(90deg, var(--rag-color), var(--gemini-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .header p {
-            font-size: 1.3em;
-            color: #555555;
+            color: var(--gray-600);
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        .section-divider {
+            background: linear-gradient(90deg, var(--rag-color), var(--gemini-color));
+            height: 3px;
+            width: 100px;
+            border-radius: 2px;
+            margin: 2rem auto 0.5rem;
         }
 
         .project-description {
-            margin-bottom: 50px;
-            font-size: 1.2em;
-            color: #444444;
-            line-height: 1.6;
+            text-align: center;
+            color: var(--gray-600);
+            font-size: 1.125rem;
+            max-width: 800px;
+            margin: 0 auto 2.5rem;
         }
 
-        .bot-options {
+        .github-link {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 40px;
+            margin-bottom: 3rem;
         }
 
-        .bot-card {
-            background: #fdfdfd;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .bot-card.llm-rag {
-            background: #f0f4f8;
-            border: 2px solid #3498db;
-        }
-
-        .bot-card.gemini-flash {
-            background: #f9f7f7;
-            border: 2px solid #8e44ad;
-        }
-
-        .bot-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .bot-image {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-        }
-
-        .bot-content {
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            flex-grow: 1;
-        }
-
-        .bot-title {
-            font-size: 1.8em;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-
-        .bot-description {
-            font-size: 1.05em;
-            color: #555555;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-
-        .bot-button {
-            padding: 12px 30px;
-            background: #2ecc71;
-            color: #ffffff;
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
             border: none;
-            border-radius: 30px;
             cursor: pointer;
-            font-size: 1.1em;
+            transition: all 0.2s ease;
+            gap: 0.5rem;
+            font-size: 1rem;
             text-decoration: none;
-            transition: background 0.3s, transform 0.3s;
-            align-self: center;
-            width: 160px;
         }
 
-        .bot-button:hover {
-            background: #27ae60;
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-rag {
+            background: var(--rag-color);
+            color: white;
+        }
+
+        .btn-gemini {
+            background: var(--gemini-color);
+            color: white;
+        }
+
+        .btn-github {
+            background: var(--gray-900);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-linkedin {
+            background: #0077b5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--gray-400);
+            background: var(--gray-50);
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-rag {
+            box-shadow: 0 0 0 1px var(--rag-light), var(--card-shadow);
+        }
+
+        .card-rag:hover {
+            box-shadow: 0 0 0 2px var(--rag-color), 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-gemini {
+            box-shadow: 0 0 0 1px var(--gemini-light), var(--card-shadow);
+        }
+
+        .card-gemini:hover {
+            box-shadow: 0 0 0 2px var(--gemini-color), 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-accent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .card-accent-rag {
+            background: linear-gradient(90deg, var(--rag-color), var(--rag-dark));
+        }
+
+        .card-accent-gemini {
+            background: linear-gradient(90deg, var(--gemini-color), var(--gemini-dark));
+        }
+
+        .card-image-container {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.75s;
+        }
+
+        .card:hover .card-image {
             transform: scale(1.05);
         }
 
-        footer {
-            margin-top: 50px;
-            color: #888888;
-            font-size: 0.9em;
+        .tech-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            padding: 0.5rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
+        .tech-badge-rag {
+            color: var(--rag-color);
+            border: 1px solid var(--rag-light);
+        }
+
+        .tech-badge-gemini {
+            color: var(--gemini-color);
+            border: 1px solid var(--gemini-light);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--gray-900);
+            position: relative;
+            display: inline-block;
+        }
+
+        .card-title::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            border-radius: 3px;
+        }
+
+        .card-rag .card-title::after {
+            background-color: var(--rag-color);
+        }
+
+        .card-gemini .card-title::after {
+            background-color: var(--gemini-color);
+        }
+
+        .card-description {
+            margin-bottom: 1.5rem;
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            flex-grow: 1;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .tag-rag {
+            background-color: var(--rag-light);
+            color: var(--rag-dark);
+        }
+
+        .tag-gemini {
+            background-color: var(--gemini-light);
+            color: var(--gemini-dark);
+        }
+
+        .icon {
+            font-size: 1rem;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-top: auto;
+        }
+
+        .comparison-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 3rem;
+            overflow: hidden;
+        }
+
+        .comparison-header {
+            padding: 1.5rem;
+            background: linear-gradient(to right, var(--rag-light), var(--gemini-light));
+            text-align: center;
+        }
+
+        .comparison-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-subtitle {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+
+        .comparison-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray-300) var(--gray-100);
+        }
+
+        .comparison-responsive::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .comparison-responsive::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 3px;
+        }
+
+        .comparison-responsive::-webkit-scrollbar-thumb {
+            background-color: var(--gray-300);
+            border-radius: 3px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* Ensures table doesn't get too small */
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table th {
+            font-weight: 600;
+            color: var(--gray-800);
+            background-color: var(--gray-50);
+        }
+
+        .th-rag {
+            color: var(--rag-color) !important;
+        }
+
+        .th-gemini {
+            color: var(--gemini-color) !important;
+        }
+
+        /* Mobile comparison cards */
+        .comparison-cards {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .comparison-card {
+            background: var(--gray-50);
+            border-radius: 12px;
+            padding: 1rem;
+            border-left: 4px solid;
+        }
+
+        .comparison-card.rag {
+            border-left-color: var(--rag-color);
+        }
+
+        .comparison-card.gemini {
+            border-left-color: var(--gemini-color);
+        }
+
+        .comparison-card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+
+        .comparison-card-subtitle {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            margin-bottom: 0.25rem;
+        }
+
+        .comparison-card-value {
+            font-size: 0.95rem;
+            color: var(--gray-700);
+        }
+        
+        /* LinkedIn connect section */
+        .connect-section {
+            background: linear-gradient(to bottom right, #f0f9ff, #e0f2fe);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 3rem 0;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .connect-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, #0077b5, #00a0dc);
+        }
+        
+        .connect-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+        }
+        
+        .connect-text {
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+            font-size: 1rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        .copyright {
+            margin-top: 0.5rem;
+        }
+
+        /* Pulse animation */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .bot-options {
-                flex-direction: column;
-                align-items: center;
+            .glass-card {
+                padding: 2rem 1.5rem;
             }
 
-            .bot-card {
-                max-width: 100%;
+            .header h1 {
+                font-size: 2.25rem;
             }
 
-            .bot-image {
-                height: 180px;
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.875rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem 1rem;
+            }
+            
+            .connect-section {
+                padding: 1.5rem;
+            }
+            
+            .connect-title {
+                font-size: 1.25rem;
             }
         }
 
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 2.2em;
-            }
+        /* Utilities */
+        .hidden-mobile {
+            display: none;
+        }
 
-            .header p, .project-description {
-                font-size: 1em;
+        @media (min-width: 768px) {
+            .hidden-mobile {
+                display: table-cell;
             }
+        }
 
-            .bot-title {
-                font-size: 1.5em;
-            }
+        .w-screen {
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
 
-            .bot-description {
-                font-size: 0.95em;
-            }
+        /* Ripple */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
 
-            .bot-button {
-                font-size: 1em;
-                padding: 10px 25px;
-                width: 140px;
-            }
+        .ripple::after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 1s;
+        }
+
+        .ripple:active::after {
+            transform: scale(0, 0);
+            opacity: 0.3;
+            transition: 0s;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Proyecto: ChatBot sobre mi CV</h1>
-            <p>Comparativa entre RAG vs Context Size</p>
-        </div>
-        <div class="project-description">
-            En este proyecto, he creado y evaluado dos tecnologías avanzadas de chatbots para determinar cuál ofrece un mejor resultado: RAG vs Context Size.
-            Ambos chatbots están basados en mi información profesional, reflejando mi experiencia y conocimientos. Te invito a interactuar con ellos y comprobar cuál de ellos ofrece una mejor experiencia.
-        </div>
-        <div class="bot-options">
-            <div class="bot-card llm-rag">
-                <img src="https://media.licdn.com/dms/image/D5612AQG6K6JVBC9JrQ/article-cover_image-shrink_720_1280/0/1721883533632?e=2147483647&v=beta&t=5_MG1qypEK3yb4Ib-5XMhR3rjmb_a5ShxjYYrhsc4Ro" alt="LLM + RAG" class="bot-image">
-                <div class="bot-content">
-                    <div>
-                        <div class="bot-title">LLM + RAG [LlamaIndex]</div>
-                        <div class="bot-description">
-                            Combina el LLM Llama 3.3 de 70B con capacidades de Recuperación de Información (RAG). En este caso, el RAG es mi CV en formato txt. Usa el framework LlamaIndex, y el embedding BGE-M3.
+        <div class="glass-card" data-aos="fade-up">
+            <header class="header">
+                <h1>Chatbot sobre mi <span class="text-gradient">CV</span></h1>
+                <div class="section-divider"></div>
+                <p>Comparativa entre tecnologías de IA conversacional</p>
+            </header>
+
+            <div class="project-description" data-aos="fade-up" data-aos-delay="100">
+                Un experimento para determinar qué enfoque proporciona mejores resultados: Recuperación Aumentada (RAG) o Gran Ventana de Contexto. Ambos chatbots responden consultas sobre mi experiencia profesional de manera inteligente.
+            </div>
+
+            <div class="github-link" data-aos="fade-up" data-aos-delay="150">
+                <a href="https://github.com/warc0s/Chatbot_CV" target="_blank" class="btn btn-github ripple pulse">
+                    <i class="material-icons-round">code</i>
+                    Ver código en GitHub
+                </a>
+            </div>
+
+            <div class="card-container">
+                <div class="card card-rag" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card-accent card-accent-rag"></div>
+                    <div class="card-image-container">
+                        <img src="https://media.licdn.com/dms/image/D5612AQG6K6JVBC9JrQ/article-cover_image-shrink_720_1280/0/1721883533632?e=2147483647&v=beta&t=5_MG1qypEK3yb4Ib-5XMhR3rjmb_a5ShxjYYrhsc4Ro" alt="LLM + RAG" class="card-image">
+                        <div class="tech-badge tech-badge-rag">Enfoque RAG</div>
+                    </div>
+                    <div class="card-body">
+                        <h2 class="card-title">LlamaIndex + Llama 3.3 70B</h2>
+                        <p class="card-description">
+                            Busca y recupera información relevante en tiempo real del CV, proporcionando solo los datos necesarios al modelo para generar respuestas precisas.
+                        </p>
+                        <div class="tag-container">
+                            <span class="tag tag-rag">
+                                <i class="material-icons-round icon">psychology</i>
+                                Llama 3.3 70B
+                            </span>
+                            <span class="tag tag-rag">
+                                <i class="material-icons-round icon">storage</i>
+                                Framework LlamaIndex
+                            </span>
+                            <span class="tag tag-rag">
+                                <i class="material-icons-round icon">bolt</i>
+                                Embeddings BGE-M3
+                            </span>
+                        </div>
+                        <div class="card-actions">
+                            <a href="https://llamacv.warcos.dev" target="_blank" class="btn btn-rag ripple">
+                                <i class="material-icons-round">chat</i>
+                                Probar chatbot
+                            </a>
+                            <a href="https://github.com/warc0s/Chatbot_CV" target="_blank" class="btn btn-outline ripple">
+                                <i class="material-icons-round">code</i>
+                                Ver código
+                            </a>
                         </div>
                     </div>
-                    <a href="https://llamacv.warcos.dev" class="bot-button">Entrar</a>
                 </div>
-            </div>
-            <div class="bot-card gemini-flash">
-                <img src="https://meetcody.ai/wp-content/uploads/2024/05/unnamed-1169x614.jpg" alt="Gemini 1.5 Flash" class="bot-image">
-                <div class="bot-content">
-                    <div>
-                        <div class="bot-title">Gemini Flash</div>
-                        <div class="bot-description">
-                            Aprovecha la avanzada capacidad de contexto de Gemini Flash (1M de Tokens) para mantener conversaciones rápidas y precisas sobre el tema, en este caso, mi CV. Además, implementa un finetune de BERT para optimizar costes de LLM y bloquear preguntas no relacionadas.
+
+                <div class="card card-gemini" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card-accent card-accent-gemini"></div>
+                    <div class="card-image-container">
+                        <img src="https://meetcody.ai/wp-content/uploads/2024/05/unnamed-1169x614.jpg" alt="Gemini Flash" class="card-image">
+                        <div class="tech-badge tech-badge-gemini">Context Size</div>
+                    </div>
+                    <div class="card-body">
+                        <h2 class="card-title">Gemini Flash 2.0</h2>
+                        <p class="card-description">
+                            Mantiene todo el CV disponible durante la conversación completa, con un sistema inteligente que selecciona el modelo más apropiado según la consulta.
+                        </p>
+                        <div class="tag-container">
+                            <span class="tag tag-gemini">
+                                <i class="material-icons-round icon">memory</i>
+                                Gemini 2.0 Flash/Lite
+                            </span>
+                            <span class="tag tag-gemini">
+                                <i class="material-icons-round icon">filter_alt</i>
+                                Clasificador BERT
+                            </span>
+                            <span class="tag tag-gemini">
+                                <i class="material-icons-round icon">expand</i>
+                                1M Tokens de Context Size
+                            </span>
+                        </div>
+                        <div class="card-actions">
+                            <a href="https://geminicv.warcos.dev" target="_blank" class="btn btn-gemini ripple">
+                                <i class="material-icons-round">chat</i>
+                                Probar chatbot
+                            </a>
+                            <a href="https://github.com/warc0s/Chatbot_CV" target="_blank" class="btn btn-outline ripple">
+                                <i class="material-icons-round">code</i>
+                                Ver código
+                            </a>
                         </div>
                     </div>
-                    <a href="https://geminicv.warcos.dev" class="bot-button">Entrar</a>
                 </div>
             </div>
+
+            <div class="comparison-container" data-aos="fade-up" data-aos-delay="400">
+                <div class="comparison-header">
+                    <h3 class="comparison-title">Comparativa de enfoques</h3>
+                    <p class="comparison-subtitle">Diferencias clave entre las tecnologías implementadas</p>
+                </div>
+                <div class="comparison-responsive">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Característica</th>
+                                <th class="th-rag">RAG (LlamaIndex)</th>
+                                <th class="th-gemini">Context Size (Gemini)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Método</td>
+                                <td>Recupera fragmentos relevantes</td>
+                                <td>Documento completo en memoria (System Prompt)</td>
+                            </tr>
+                            <tr>
+                                <td>Eficiencia</td>
+                                <td>Menor consumo de tokens al recuperar selectivamente</td>
+                                <td>Uso constante de grandes ventanas de contexto</td>
+                            </tr>
+                            <tr>
+                                <td>Ventaja principal</td>
+                                <td>Precisión en consultas específicas</td>
+                                <td>Fluidez en conversaciones complejas</td>
+                            </tr>
+                            <tr>
+                                <td>Optimización</td>
+                                <td>Chunking estratégico e indexación vectorial</td>
+                                <td>Clasificador BERT para selección de modelos</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="connect-section" data-aos="fade-up" data-aos-delay="450">
+                <h3 class="connect-title">¿Quieres saber más?</h3>
+                <p class="connect-text">Me encanta compartir ideas sobre proyectos tecnológicos y descubrir nuevas perspectivas en el campo de la IA. Si tienes proyectos interesantes o quieres discutir sobre las últimas tendencias del sector, conectemos en Linkedin.</p>
+                <a href="https://www.linkedin.com/in/marcosgarest/" target="_blank" class="btn btn-linkedin ripple">
+                    <i class="material-icons-round">person_add</i>
+                    Conectar en LinkedIn
+                </a>
+            </div>
+
+            <footer class="footer">
+                <div class="section-divider"></div>
+                <div class="copyright">
+                    &copy; 2025 Marcos García Estévez. Derechos reservados.
+                </div>
+            </footer>
         </div>
-        <footer>
-            &copy; 2025 Marcos García Estévez. Derechos reservados.
-        </footer>
     </div>
+
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true
+        });
+
+        // Ripple effect
+        document.querySelectorAll('.ripple').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const x = e.clientX - e.target.getBoundingClientRect().left;
+                const y = e.clientY - e.target.getBoundingClientRect().top;
+
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    background: rgba(255, 255, 255, 0.7);
+                    border-radius: 50%;
+                    width: 5px;
+                    height: 5px;
+                    top: ${y}px;
+                    left: ${x}px;
+                    transform: translate(-50%, -50%);
+                    animation: ripple-effect 0.6s linear;
+                    pointer-events: none;
+                `;
+
+                this.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add styles for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple-effect {
+                0% {
+                    transform: translate(-50%, -50%) scale(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translate(-50%, -50%) scale(50);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
