@@ -1,0 +1,6 @@
+streamlit
+llama-index
+llama-index-llms-groq
+llama-index-embeddings-deepinfra
+llama-index-embeddings-instructor
+markdown

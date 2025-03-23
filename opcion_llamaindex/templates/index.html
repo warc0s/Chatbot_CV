@@ -1,10 +1,9 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot CV - Gemini Flash Version</title>
+    <title>Chatbot CV - LlamaIndex Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/google/material-design-icons@master/png/social/person/materialicons/24dp/2x/baseline_person_white_24dp.png">
@@ -27,16 +26,16 @@
         .chatbot-message {
             background: linear-gradient(145deg, #121828 0%, #1A2236 100%);
             box-shadow: 0 8px 32px rgba(18, 24, 40, 0.1);
-            border: 1px solid rgba(128, 90, 213, 0.15);
+            border: 1px solid rgba(49, 130, 206, 0.15);
         }
 
         .user-message {
-            background: linear-gradient(45deg, #805AD5 0%, #9F7AEA 30%, #B794F4 100%);
-            box-shadow: 0 8px 24px rgba(128, 90, 213, 0.2);
+            background: linear-gradient(45deg, #3182CE 0%, #63B3ED 30%, #90CDF4 100%);
+            box-shadow: 0 8px 24px rgba(49, 130, 206, 0.2);
         }
 
         .ai-gradient-text {
-            background: linear-gradient(135deg, #805AD5 0%, #B794F4 100%);
+            background: linear-gradient(135deg, #3182CE 0%, #90CDF4 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -55,14 +54,14 @@
         }
 
         .prose :where(code):not(:where([class~="not-prose"] *)) {
-            background: rgba(128, 90, 213, 0.15);
+            background: rgba(49, 130, 206, 0.15);
             padding: 0.2em 0.4em;
             border-radius: 0.25rem;
         }
 
         /* Additional styles */
         .chatbot-message h3 {
-            color: #9F7AEA !important;
+            color: #63B3ED !important;
             font-weight: 600 !important;
             font-size: clamp(1rem, 2vw, 1.125rem) !important;
             margin-bottom: 0.5rem !important;
@@ -127,15 +126,6 @@
                 margin-top: 0.5rem;
                 width: 100%;
             }
-            
-            .llm-selector-container {
-                width: 100% !important;
-                margin-top: 0.5rem;
-            }
-            
-            #llmSelector {
-                width: 100% !important;
-            }
 
             .intro-card {
                 margin-bottom: 0.75rem !important;
@@ -172,10 +162,6 @@
                 order: 2;
                 width: 100% !important;
                 margin: 0.5rem 0 !important;
-            }
-            
-            .llm-selector-container {
-                order: 1;
             }
         }
 
@@ -234,16 +220,16 @@
             background: transparent;
         }
         #chatContainer::-webkit-scrollbar-thumb {
-            background: linear-gradient(145deg, #805AD5, #B794F4);
+            background: linear-gradient(145deg, #3182CE, #90CDF4);
             border-radius: 4px;
         }
         #chatContainer::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(145deg, #B794F4, #805AD5);
+            background: linear-gradient(145deg, #90CDF4, #3182CE);
         }
 
         #chatContainer {
             scrollbar-width: thin;
-            scrollbar-color: #805AD5 transparent;
+            scrollbar-color: #3182CE transparent;
         }
 
         /* Animation for ellipsis */
@@ -280,7 +266,7 @@
         }
 
         .prose li::marker {
-            color: rgba(128, 90, 213, 0.8) !important;
+            color: rgba(49, 130, 206, 0.8) !important;
         }
 
         .prose p {
@@ -292,7 +278,7 @@
         }
 
         .prose blockquote {
-            border-left: 3px solid rgba(128, 90, 213, 0.5);
+            border-left: 3px solid rgba(49, 130, 206, 0.5);
             padding-left: 1em;
             margin: 1em 0;
             color: #CBD5E0;
@@ -300,7 +286,7 @@
         }
 
         .prose code {
-            background-color: rgba(128, 90, 213, 0.15);
+            background-color: rgba(49, 130, 206, 0.15);
             border-radius: 0.25rem;
             padding: 0.2em 0.4em;
             font-family: monospace;
@@ -312,7 +298,7 @@
             padding: 1em;
             margin: 1em 0;
             overflow-x: auto;
-            border: 1px solid rgba(128, 90, 213, 0.2);
+            border: 1px solid rgba(49, 130, 206, 0.2);
         }
 
         .prose pre code {
@@ -323,7 +309,7 @@
         }
 
         .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-            color: #9F7AEA !important;
+            color: #63B3ED !important;
             margin-top: 1.5em !important;
             margin-bottom: 0.75em !important;
             font-weight: 600 !important;
@@ -336,13 +322,13 @@
         }
 
         .prose th, .prose td {
-            border: 1px solid rgba(128, 90, 213, 0.2);
+            border: 1px solid rgba(49, 130, 206, 0.2);
             padding: 0.5em;
             text-align: left;
         }
 
         .prose th {
-            background-color: rgba(128, 90, 213, 0.1);
+            background-color: rgba(49, 130, 206, 0.1);
         }
 
         /* Spacing between paragraphs */
@@ -360,7 +346,7 @@
             width: 1.5rem;
             height: 1.5rem;
             border-radius: 50%;
-            background-color: rgba(128, 90, 213, 0.2);
+            background-color: rgba(49, 130, 206, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -370,7 +356,7 @@
         }
         
         .close-btn:hover {
-            background-color: rgba(128, 90, 213, 0.4);
+            background-color: rgba(49, 130, 206, 0.4);
             transform: rotate(90deg);
         }
         
@@ -391,35 +377,19 @@
         <header class="pt-8 px-4 sm:px-6">
             <div class="flex items-center space-x-4 flex-wrap sm:flex-nowrap">
                 <div class="relative group">
-                    <div class="absolute inset-0 bg-gradient-to-r from-[#805AD5] to-[#B794F4] rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#3182CE] to-[#90CDF4] rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
                     <div class="relative bg-[#121828] px-6 py-3 rounded-xl border border-[#2D3748]">
-                        <h1 class="text-2xl font-bold ai-gradient-text">Chatbot CV - Gemini Flash</h1>
+                        <h1 class="text-2xl font-bold ai-gradient-text">Chatbot CV - LlamaIndex RAG</h1>
                     </div>
                 </div>
-                <button id="clearChat" class="px-4 py-2 bg-[#121828] hover:bg-[#1A2236] text-[#9F7AEA] rounded-xl border border-[#2D3748] transition-all hover:border-[#805AD5] flex items-center gap-2">
+                <button id="clearChat" class="px-4 py-2 bg-[#121828] hover:bg-[#1A2236] text-[#63B3ED] rounded-xl border border-[#2D3748] transition-all hover:border-[#3182CE] flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                     </svg>
                     Limpiar chat
                 </button>
-                <div class="h-px flex-1 bg-gradient-to-r from-[#805AD522] via-[#805AD5aa] to-[#805AD522] hr-div"></div>
-                <!-- LLM Selector -->
-                <div class="flex items-center space-x-3 relative group llm-selector-container">
-                    <label for="llmSelector" class="text-[#CBD5E0] text-sm font-medium">LLM:</label>
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-r from-[#805AD5] to-[#B794F4] opacity-0 blur group-hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
-                        <select id="llmSelector" class="appearance-none bg-[#121828] border border-[#2D3748] text-[#9F7AEA] rounded-xl px-4 py-2 pr-10 focus:outline-none focus:border-[#805AD5] focus:ring-1 focus:ring-[#805AD5] transition-all duration-200 hover:border-[#805AD5] cursor-pointer shadow-sm hover:shadow-md">
-                            <option value="Automatico" selected>🤖 Automático</option>
-                            <option value="Gemini 2.0 Flash">⚡ Gemini 2.0 Flash</option>
-                            <option value="Gemini 2.0 Flash-Lite">💫 Gemini 2.0 Flash-Lite</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg class="h-4 w-4 text-[#805AD5]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+                <div class="h-px flex-1 bg-gradient-to-r from-[#3182CE22] via-[#3182CEaa] to-[#3182CE22] hr-div"></div>
+                <!-- Removing LLM Selector as requested -->
             </div>
         </header>
 
@@ -433,7 +403,7 @@
         <!-- Input Area -->
         <div class="pb-8 pt-4 px-4">
             <div class="relative group">
-                <div class="absolute inset-0 bg-gradient-to-r from-[#805AD5] to-[#B794F4] blur opacity-10 group-hover:opacity-20 transition-opacity duration-300 rounded-2xl"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-[#3182CE] to-[#90CDF4] blur opacity-10 group-hover:opacity-20 transition-opacity duration-300 rounded-2xl"></div>
                 <div class="relative flex items-center space-x-4 bg-[#121828] rounded-2xl p-4 border border-[#2D3748] shadow-2xl">
                     <input 
                         id="userInput"
@@ -446,7 +416,7 @@
                     <button 
                         id="sendButton"
                         onclick="sendMessage()"
-                        class="p-3 bg-gradient-to-br from-[#805AD5] to-[#B794F4] rounded-xl hover:scale-105 transition-transform duration-200 shadow-lg"
+                        class="p-3 bg-gradient-to-br from-[#3182CE] to-[#90CDF4] rounded-xl hover:scale-105 transition-transform duration-200 shadow-lg"
                     >
                         <svg class="w-6 h-6 text-[#0B0F19]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -480,11 +450,11 @@
                 this.progressSteps = [
                     "Analizando pregunta", 
                     "Procesando contexto", 
+                    "Consultando el CV",
                     "Elaborando respuesta",
-                    "Refinando los detalles",
-                    "Conectando con el CV",
                     "Verificando información",
-                    "Añadiendo retoques finales",
+                    "Refinando detalles",
+                    "Conectando experiencias",
                     "Completando respuesta"
                 ];
                 this.processing = false;
@@ -496,8 +466,6 @@
                 
                 this.setupEventListeners();
                 this.loadHistory();
-                
-                //console.log('Chat inicializado. ID de sesión:', localStorage.getItem('chat_session_id'));
             }
 
             setupEventListeners() {
@@ -528,13 +496,13 @@
                     </div>
                     <div class="chatbot-message rounded-[1.75rem] p-5 backdrop-blur-lg">
                         <div class="flex items-center space-x-4">
-                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#805AD5] to-[#B794F4] flex items-center justify-center animate-float message-icon">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#3182CE] to-[#90CDF4] flex items-center justify-center animate-float message-icon">
                                 <svg class="w-5 h-5 text-[#0B0F19]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                     <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
                                 </svg>
                             </div>
                             <div class="flex-1 space-y-2.5">
-                                <h3 class="text-[#9F7AEA] font-semibold text-lg">Chatbot CV - Gemini Flash</h3>
+                                <h3 class="text-[#63B3ED] font-semibold text-lg">Chatbot CV - LlamaIndex RAG</h3>
                                 <p class="text-[#CBD5E0] leading-relaxed text-[15px]">Hola, soy un asistente virtual especializado en el CV de Marcos. Puedo responder preguntas sobre su experiencia, habilidades y formación. ¿En qué puedo ayudarte hoy?</p>
                             </div>
                         </div>
@@ -554,16 +522,15 @@
                     </div>
                     <div class="chatbot-message rounded-[1.75rem] p-5 backdrop-blur-lg">
                         <div class="flex items-start space-x-4">
-                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#805AD5] to-[#B794F4] flex items-center justify-center shrink-0 mt-1 message-icon">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#3182CE] to-[#90CDF4] flex items-center justify-center shrink-0 mt-1 message-icon">
                                 <svg class="w-5 h-5 text-[#0B0F19]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-[#9F7AEA] font-semibold text-lg mb-2">Sobre este chatbot</h3>
-                                <p class="text-[#CBD5E0] leading-relaxed text-[15px] mb-2">Este es un chatbot inteligente diseñado para consultar información sobre el perfil profesional de Marcos. Puedes hacer preguntas específicas sobre su experiencia, habilidades, proyectos o evaluar si encajaría en un rol particular.</p>
-                                <p class="text-[#CBD5E0] leading-relaxed text-[15px] mb-2">El sistema utiliza un modelo BERT para clasificar las preguntas según su complejidad: las consultas sencillas son procesadas por Gemini Flash Lite, mientras que las más complejas utilizan Gemini Flash, optimizando así rendimiento y costes. Además, las preguntas no relacionadas son automáticamente filtradas para bloquear posibles abusos.</p>
-                                <p class="text-[#CBD5E0] leading-relaxed text-[15px]">Por último, la distinción de este enfoque radica en que la información completa del CV está siempre precargada en el prompt, lo que permite respuestas rápidas y precisas.</p>
+                                <h3 class="text-[#63B3ED] font-semibold text-lg mb-2">Sobre este chatbot</h3>
+                                <p class="text-[#CBD5E0] leading-relaxed text-[15px] mb-2">Este chatbot utiliza tecnología avanzada de IA para proporcionar información precisa sobre el perfil profesional de Marcos Garcia Estevez. Puedes preguntar sobre su experiencia, habilidades, proyectos o formación académica.</p>
+                                <p class="text-[#CBD5E0] leading-relaxed text-[15px]">El sistema está construido con LlamaIndex, utiliza embeddings BGE-M3 y el modelo de lenguaje Llama 3.3 70B de Groq para generar respuestas precisas y detalladas basadas exclusivamente en la información real del CV de Marcos.</p>
                             </div>
                         </div>
                     </div>
@@ -582,7 +549,7 @@
                 this.container.appendChild(infoCard);
                 
                 // Añadir los mensajes de la conversación
-                this.history.forEach(msg => this.addMessageElement(msg.role, msg.content, false, msg.llm));
+                this.history.forEach(msg => this.addMessageElement(msg.role, msg.content, false));
                 
                 // Desplazar al final
                 this.scrollToBottom();
@@ -610,9 +577,6 @@
                     document.getElementById("sendButton").disabled = false;
                     return;
                 }
-
-                // Get the selected LLM option
-                const llmSelector = document.getElementById("llmSelector").value;
                 
                 // Get the stored session_id
                 const session_id = localStorage.getItem('chat_session_id') || '';
@@ -626,8 +590,7 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            message: message, 
-                            llm: llmSelector,
+                            message: message,
                             session_id: session_id
                         })
                     })
@@ -638,11 +601,10 @@
                     // Save the session_id returned by the server
                     if (data.session_id) {
                         localStorage.setItem('chat_session_id', data.session_id);
-                        //console.log('Session ID actualizado:', data.session_id);
                     }
 
                     this.removeLoading()
-                    this.addMessage('assistant', data.response, data.llm)
+                    this.addMessage('assistant', data.response)
                     this.saveHistory()
                 } catch (error) {
                     this.removeLoading()
@@ -658,13 +620,13 @@
                 }
             }
 
-            addMessage(role, content, llm = null) {
-                this.addMessageElement(role, content, true, llm)
-                this.history.push({ role, content, llm })
+            addMessage(role, content) {
+                this.addMessageElement(role, content, true)
+                this.history.push({ role, content })
                 this.scrollToBottom()
             }
 
-            addMessageElement(role, content, animate = true, llm = null) {
+            addMessageElement(role, content, animate = true) {
                 const isAI = role === 'assistant'
                 const div = document.createElement('div')
                 div.className = `message-entrance mb-6 ${animate ? 'opacity-0' : ''}`
@@ -672,28 +634,28 @@
                 div.innerHTML = `
                     <div class="${isAI ? '' : 'flex justify-end'}">
                         <div class="${isAI ? 
-                            'chatbot-message rounded-[1.75rem] hover:border-[#805AD533] transition-all relative' : 
+                            'chatbot-message rounded-[1.75rem] hover:border-[#3182CE33] transition-all relative' : 
                             'user-message rounded-[1.25rem] hover:shadow-xl transition-transform'} 
                             p-5 max-w-[85%] sm:max-w-[85%] transform hover:scale-[1.01]">
                             <div class="flex items-center gap-4 ${isAI ? '' : 'flex-row-reverse'}">
                                 ${isAI ? ` 
-                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#805AD5] to-[#B794F4] flex items-center justify-center shrink-0 message-icon">
+                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#3182CE] to-[#90CDF4] flex items-center justify-center shrink-0 message-icon">
                                         <svg class="w-5 h-5 text-[#0B0F19]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                             <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
                                         </svg>
                                     </div>
                                 ` : ` 
-                                    <div class="w-9 h-9 rounded-xl bg-[#0B0F19]/80 flex items-center justify-center shrink-0 border border-[#805AD5]/20 message-icon">
-                                        <svg class="w-5 h-5 text-[#B794F4]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <div class="w-9 h-9 rounded-xl bg-[#0B0F19]/80 flex items-center justify-center shrink-0 border border-[#3182CE]/20 message-icon">
+                                        <svg class="w-5 h-5 text-[#90CDF4]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
                                         </svg>
                                     </div>
                                 `}
                                 <div class="flex-1 ${isAI ? 'text-[#CBD5E0]' : 'text-[#0B0F19]'} prose prose-invert max-w-none text-[15px] leading-snug">
                                     ${marked.parse(content)}
-                                    ${isAI && llm ? `
-                                        <div class="text-[10px] text-[#805AD5] opacity-70 absolute bottom-2 right-4 italic">
-                                            ${llm}
+                                    ${isAI ? `
+                                        <div class="text-[10px] text-[#3182CE] opacity-70 absolute bottom-2 right-4 italic">
+                                            Llama 3.3 70B
                                         </div>
                                     ` : ''}
                                 </div>
@@ -722,7 +684,7 @@
                 div.innerHTML = `
                     <div class="chatbot-message rounded-[1.75rem] p-5 backdrop-blur-lg">
                         <div class="flex items-center space-x-4">
-                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#805AD5] to-[#B794F4] flex items-center justify-center message-icon">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#3182CE] to-[#90CDF4] flex items-center justify-center message-icon">
                                 <div class="w-5 h-5 border-2 border-[#0B0F19] border-t-transparent rounded-full animate-spin"></div>
                             </div>
                             <div class="text-[#CBD5E0] text-[15px] progress-text">${this.progressSteps[0]}</div>
@@ -790,7 +752,6 @@
                 .then(data => {
                     if (data.session_id) {
                         localStorage.setItem('chat_session_id', data.session_id);
-                        //console.log('Historia borrada en el servidor, nuevo session_id:', data.session_id);
                     }
                 })
                 .catch(error => console.error('Error al borrar historial:', error));
