@@ -169,31 +169,47 @@ Ambas versiones presentan interfaces modernas y responsivas:
 ## 📦 Instalación y Uso
 
 ### Requisitos
-- Python 3.10+
-- API Keys: Groq, Google AI, DeepInfra
+- **Python 3.10+**
+- **API Keys**: Groq, Google AI, DeepInfra
 
 ### Configuración del Backend
-*Instrucciones de instalación:*
+Sigue estos pasos para configurar el backend:
 
-*# Clonar el repositorio*
-*git clone https://github.com/warc0s/Chatbot_CV.git*
-*cd Chatbot_CV*
+1. **Clona el repositorio**  
+   Ejecuta en la terminal:
+   
+       git clone https://github.com/warc0s/Chatbot_CV.git
+       cd Chatbot_CV
 
-*# Crear entorno virtual*
-*python -m venv venv*
-*source venv/bin/activate  # En Windows: venv\Scripts\activate*
+2. **Crea un entorno virtual**  
+   Ejecuta:
+   
+       python -m venv venv
+   
+   Activa el entorno:
+   - En Linux/macOS:
+   
+         source venv/bin/activate
+   - En Windows:
+   
+         venv\Scripts\activate
 
-*# Instalar dependencias*
-*pip install -r requirements.txt*
+3. **Instala las dependencias**  
+   Ejecuta:
+   
+       pip install -r requirements.txt
 
-*# Configurar variables de entorno*
-*# Editar .env con tus API keys*
+4. **Configura las variables de entorno**  
+   Edita el archivo `.env` e introduce tus API Keys.
 
-*# Iniciar servidor*
-*python app.py*
+5. **Inicia el servidor**  
+   Ejecuta:
+   
+       python app.py
 
 ### Uso del Frontend
-El frontend estará disponible en `http://localhost:5000` tras iniciar el servidor.
+Una vez iniciado el servidor, el frontend estará disponible en:  
+[http://localhost:5000](http://localhost:5000)
 
 ## 👥 Contribución
 
