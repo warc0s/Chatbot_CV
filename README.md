@@ -123,6 +123,8 @@ Esta clasificación inteligente permite:
 - Mantener el enfoque del chatbot en su propósito específico
 - Prevenir posibles abusos o desvíos del tema principal
 
+El clasificador BERT ha sido entrenado utilizando un cuaderno Jupyter que puede encontrarse dentro de la carpeta "Extra". Este notebook documenta todo el proceso de preparación de datos, entrenamiento y evaluación del modelo de clasificación, permitiendo reproducir o mejorar el clasificador según sea necesario.
+
 ## ⚙️ Arquitectura y Optimización
 
 Ambas implementaciones comparten elementos arquitectónicos clave:
