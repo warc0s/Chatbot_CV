@@ -2,22 +2,22 @@
 
 ![Banner](https://github.com/warc0s/Chatbot_CV/blob/main/extra/banner.png?raw=true)
 
-## 📑 Índice
-- [Descripción General](#descripción-general)
-- [Arquitectura Dual: RAG vs Ventana de Contexto](#arquitectura-dual-rag-vs-ventana-de-contexto)
+## Índice
+- [Descripción General](#-descripción-general)
+- [Arquitectura Dual: RAG vs Ventana de Contexto](#-arquitectura-dual-rag-vs-ventana-de-contexto)
   - [¿Qué es RAG?](#qué-es-rag)
   - [¿Qué es una Gran Ventana de Contexto?](#qué-es-una-gran-ventana-de-contexto)
   - [Comparación de Enfoques](#comparación-de-enfoques)
-- [Implementaciones Técnicas](#implementaciones-técnicas)
+- [Implementaciones Técnicas](#-implementaciones-técnicas)
   - [Enfoque 1: LlamaIndex + Llama 3.3 70B](#enfoque-1-llamaindex--llama-33-70b)
   - [Enfoque 2: Gemini Flash con Contexto Completo](#enfoque-2-gemini-flash-con-contexto-completo)
-- [Sistema Inteligente de Clasificación](#sistema-inteligente-de-clasificación)
-- [Arquitectura y Optimización](#arquitectura-y-optimización)
-- [Frontend y Experiencia de Usuario](#frontend-y-experiencia-de-usuario)
-- [Tecnologías y Frameworks](#tecnologías-y-frameworks)
-- [Instalación y Uso](#instalación-y-uso)
-- [Contribución](#contribución)
-- [Licencia](#licencia)
+- [Sistema Inteligente de Clasificación](#-sistema-inteligente-de-clasificación)
+- [Arquitectura y Optimización](#-arquitectura-y-optimización)
+- [Frontend y Experiencia de Usuario](#-frontend-y-experiencia-de-usuario)
+- [Tecnologías y Frameworks](#-tecnologías-y-frameworks)
+- [Instalación y Uso](#-instalación-y-uso)
+- [Contribución](#-contribución)
+- [Licencia](#-licencia)
 
 ## 📋 Descripción General
 
