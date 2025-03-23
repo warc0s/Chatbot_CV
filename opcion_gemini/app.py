@@ -176,16 +176,18 @@ Desarrollador especializado en IA y tecnologías emergentes, con experiencia en 
   - **Midas Architect**: Componente RAG que utiliza Supabase como base de datos vectorial para consultar documentación de frameworks (Pydantic AI, LlamaIndex, CrewAI y AG2), implementado con Gemini 2.0 Flash y documentación scrapeada con Crawl4AI
   - **Midas Help**: Sistema RAG con LlamaIndex, que selecciona LLMs según la complejidad de la consulta usando BERT para clasificación y reranking para optimizar la recuperación de contexto
 - **Contribución**: Además de desarrollar estos 5 componentes, me encargué de la arquitectura general del sistema y su despliegue.
-- **Repositorio**: [Ver en GitHub](https://github.com/warc0s/MIDAS)
+- **URL**: [Click Aqui](https://midastfm.com)
+- **Repositorio**: [GitHub](https://github.com/warc0s/MIDAS)
 
 ### LLM StoryTeller
 - **Descripción**: Aplicación web interactiva que utiliza Large Language Models (LLMs) para ayudar a los usuarios a crear historias cautivadoras sin esfuerzo. Presenta características como creación interactiva con asistencia de IA, múltiples géneros y temas, desarrollo de personajes, sugerencias de trama y exportación en varios formatos. La aplicación utiliza modelos de lenguaje pequeños para generar segmentos de historia contextuales basados en la entrada del usuario, con un marco Streamlit que proporciona una interfaz intuitiva.
 - **URL**: [https://llm-storyteller.streamlit.app](https://llm-storyteller.streamlit.app)
 - **Repositorio**: [GitHub](https://github.com/warc0s/llm-storyteller)
 
-### ChatCV
-- **Descripción**: Currículum interactivo mediante un chatbot, implementando dos enfoques: LLM+RAG con Llama 3.3 70b + BGE-M3, y sistema basado en Gemini Flash con contexto extendido.
+### ChatbotCV (este eres tú)
+- **Descripción**: Proyecto innovador que implementa y compara dos arquitecturas avanzadas de chatbot para consulta de información curricular: (1) RAG utilizando LlamaIndex + Llama 3.3 70B con embeddings BGE-M3, y (2) Gemini Flash/Flash-Lite, donde un clasificador BERT determina si usar Flash para consultas complejas o Flash-Lite para consultas simples, optimizando así los costes. Este clasificador BERT también bloquea las consultas no relacionadas para prevenir abusos. Tiene una interfaz moderna con Tailwind CSS.
 - **URL**: [https://chatbot.warcos.dev/](https://chatbot.warcos.dev/)
+- **GitHub**: [https://github.com/warc0s/Chatbot_CV](https://github.com/warc0s/Chatbot_CV)
 
 ### Gather-Tracker
 - **Fecha**: Junio 2024  
@@ -205,6 +207,7 @@ Desarrollador especializado en IA y tecnologías emergentes, con experiencia en 
 ### HDD Failure ML
 - **Fecha**: Noviembre 2024
 - **Descripción**: Sistema predictivo de fallos en discos duros mediante ensemble de modelos Random Forest y XGBoost con tres configuraciones optimizadas: máxima precisión (99%), máximo recall (86%) y balance F1 (80%). Aplicable universalmente a cualquier fabricante mediante datos SMART.
+- **Repositorio**: [GitHub](https://github.com/warc0s/hdd-failure-rate-ml)
 
 ---
 
