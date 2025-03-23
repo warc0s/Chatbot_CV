@@ -441,4 +441,4 @@ def clear_conversation_history():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5008, debug=False)
+    app.run(host='127.0.0.1', port=5000, debug=False)
